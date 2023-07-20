@@ -1,11 +1,14 @@
 package com.app.tradeServer.controller;
 
-import com.app.tradeServer.model.*;
-import com.app.tradeServer.service.*;
+import com.app.tradeServer.model.User;
+import com.app.tradeServer.model.UserFunds;
+import com.app.tradeServer.model.UserOrders;
+import com.app.tradeServer.service.UserFundsService;
+import com.app.tradeServer.service.UserOrdersService;
+import com.app.tradeServer.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -20,25 +23,25 @@ public class UserController {
     private UserFundsService userFundsService;
 
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody User user){
+    public ResponseEntity<String> createUser(@RequestBody User user) {
         userService.createUser(user);
         return ResponseEntity.ok("User created successfully");
     }
 
     @PostMapping("/buy")
-    public ResponseEntity<String> buyOrder(@RequestBody UserOrders userOrders, Long userId){
-        userOrdersService.placeOrder(userOrders);
+    public ResponseEntity<String> buyOrder(@RequestBody UserOrders userOrders, Long userId) {
+        userOrdersService.placeBuyOrder(userOrders);
         return ResponseEntity.ok("Buy order placed successfully");
     }
 
     @PostMapping("/sell")
-    public ResponseEntity<String> sellOrder(@RequestBody UserOrders userOrders, User user){
-        userOrdersService.placeOrder(userOrders);
+    public ResponseEntity<String> sellOrder(@RequestBody UserOrders userOrders, User user) {
+        userOrdersService.placeSellOrder(userOrders);
         return ResponseEntity.ok("Sell order placed successfully");
     }
 
     @PostMapping("/add-funds")
-    public ResponseEntity<String> addFunds(@RequestBody UserFunds userFunds){
+    public ResponseEntity<String> addFunds(@RequestBody UserFunds userFunds) {
         userFundsService.updateUserFunds(userFunds);
         return ResponseEntity.ok("Funds added successfully");
     }

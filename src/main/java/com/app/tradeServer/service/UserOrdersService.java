@@ -11,30 +11,34 @@ import java.util.Optional;
 
 @Service
 public class UserOrdersService {
-    private final UserOrdersRepository userOrdersRepository;
 
     @Autowired
-    public UserOrdersService(UserOrdersRepository userOrdersRepository) {
-        this.userOrdersRepository = userOrdersRepository;
-    }
+    private UserOrdersRepository userOrdersRepository;
+
+    @Autowired
+    private UserFundsService userFundsService;
+
     public void placeBuyOrder(UserOrders userOrder) {
-        UserFunds userFunds = UserFundsService.getUserFundsByUserId(userOrder.getUserId());
+        UserFunds userFunds = this.userFundsService.getUserFundsByUserId(userOrder.getUserId());
         double userAvailAmount = userFunds.getAmount();
         //buy
-        double userReqAmount = userOrder.getStockId().getPrice() * userOrder.getQuantity()
+        double userReqAmount = userOrder.getStockId() * userOrder.getQuantity(); // TODO: multiply by price
         if (userReqAmount <= userAvailAmount) {
             userAvailAmount -= userReqAmount;
             userFunds.setAmount(userAvailAmount);
             userOrdersRepository.save(userOrder);
         }
     }
+
+    public void placeSellOrder(UserOrders userOrder) {
         //sell
-        List<UserStocks> userAvailStocks=UserStocksService.getUserStocksByUserId(userOrder.getUserId());
-        for(UserStocks stock: UserStocks) {
-            if (stock.getStockId().equals(UserOrders.getStockId())) {
-                if (stock.getQuantity() >= UserOrders.getQuantity()) {
-                    double userAvailFunds=UserFunds.getAmount();
-                    UserFunds.setAmount(userAvailFunds-(stock.getStockId().getPrice()*UserOrders.getQuantity()));
+        List<UserStocks> userStocks=UserStocksService.getUserStocksByUserId(userOrder.getUserId());
+//        UserFunds userFunds = this.userFundsService.getUserFundsByUserId(userOrder.getUserId());
+        for(UserStocks stock: userStocks) {
+            if (stock.getStockId().equals(userOrder.getStockId())) {
+                if (stock.getQuantity() >= userOrder.getQuantity()) {
+//                    double userAvailFunds=user.getAmount();
+//                    UserFunds.setAmount(-(stock.getStockId()*userOr.getQuantity())); // TODO: hold stocks
                     userOrdersRepository.save(userOrder);
                 }
             }

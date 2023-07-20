@@ -35,3 +35,18 @@ services:
       DYNAMIC_CONFIG_ENABLED: true
       KAFKA_CLUSTERS_0_NAME: StockExchangeCluster
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+  postgresdb:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: 2357
+
+  trade-server:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    depends_on:
+      - postgresdb
+      - kafka

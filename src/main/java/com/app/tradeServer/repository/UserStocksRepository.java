@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface UserStocksRepository extends JpaRepository<UserStocks,Long> {
-    public List<UserStocks> getUserStocksById(Long userId);
+    public List<UserStocks> getUserStocksByUserId(Long userId);
 }

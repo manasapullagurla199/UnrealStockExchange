@@ -15,7 +15,7 @@ public class UserStocksService {
     }
 
     public static List<UserStocks> getUserStocksByUserId(Long userId) {
-        return userStocksRepository.getUserStocksById(userId);
+        return userStocksRepository.getUserStocksByUserId(userId);
         // Logic to fetch and return all user stocks for a specific user from the UserStockRepository
     }
 }
