@@ -1,5 +1,6 @@
 package com.app.tradeServer.controller;
 
+import com.app.tradeServer.model.StockExchangeTradeRequest;
 import com.app.tradeServer.model.User;
 import com.app.tradeServer.model.UserFunds;
 import com.app.tradeServer.model.UserOrders;
@@ -29,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping("/buy")
-    public ResponseEntity<String> buyOrder(@RequestBody UserOrders userOrders, Long userId) {
+    public ResponseEntity<String> buyOrder(@RequestBody UserOrders userOrders) {
         userOrdersService.placeBuyOrder(userOrders);
         return ResponseEntity.ok("Buy order placed successfully");
     }

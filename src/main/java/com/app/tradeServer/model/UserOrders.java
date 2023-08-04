@@ -1,13 +1,16 @@
 package com.app.tradeServer.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class UserOrders{
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long orderId;
-    Long userId;
+    @ManyToOne
+    @JoinColumn(name="userId")
+    private User user;
+//    Long userId;
     Long stockId;
     double quantity;
     boolean status;
@@ -24,8 +27,11 @@ public class UserOrders{
     public Long getOrderId(){
         return this.orderId;
     }
+//    public Long getUserId(){
+//        return this.userId;
+//    }
     public Long getUserId(){
-        return this.userId;
+        return user.getUserId();
     }
     public boolean getStatus(){
         return this.status;

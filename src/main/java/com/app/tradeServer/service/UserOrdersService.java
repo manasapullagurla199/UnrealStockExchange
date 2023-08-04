@@ -18,16 +18,25 @@ public class UserOrdersService {
     @Autowired
     private UserFundsService userFundsService;
 
+    @Autowired
+    private OrderProducerKafka orderProducerKafka;
+
     public void placeBuyOrder(UserOrders userOrder) {
-        UserFunds userFunds = this.userFundsService.getUserFundsByUserId(userOrder.getUserId());
+        UserFunds userFunds = userFundsService.getUserFundsByUserId(userOrder.getUserId());
         double userAvailAmount = userFunds.getAmount();
         //buy
-        double userReqAmount = userOrder.getStockId() * userOrder.getQuantity(); // TODO: multiply by price
+
+//        double userReqAmount = userOrder.getStockId() * userOrder.getQuantity(); // TODO: multiply by price
+        double userReqAmount=10*userOrder.getQuantity();
         if (userReqAmount <= userAvailAmount) {
+            //checked if user has sufficient amount to buy stocks then sending request to stockExchange
             userAvailAmount -= userReqAmount;
             userFunds.setAmount(userAvailAmount);
             userOrdersRepository.save(userOrder);
+            StockExchangeTradeRequest stockExchangeTradeRequest=new StockExchangeTradeRequest(userOrder.getStockId(),userOrder.getQuantity());
+            orderProducerKafka.send(stockExchangeTradeRequest);
         }
+
     }
 
     public void placeSellOrder(UserOrders userOrder) {
