@@ -7,11 +7,5 @@ public class StockExchangeTradeResponse {
         this.stockId=stockId;
     }
 
-    public Long getStockId() {
-        return stockId;
-    }
 
-    public Long getOrderId() {
-        return orderId;
-    }
 }

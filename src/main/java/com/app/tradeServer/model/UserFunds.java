@@ -1,14 +1,19 @@
 package com.app.tradeServer.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserFunds {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long FundsId;
-    @OneToOne
-    @JoinColumn(name="userId")
+    private Long id;
+    @OneToOne(mappedBy="funds")
     private User user;
     double amount;
     double holdAmount;
@@ -17,9 +22,6 @@ public class UserFunds {
         return this.amount;
     }
 
-    public Long getUserId() {
-        return user.getUserId();
-    }
 
     public void setAmount(double amount){
         this.amount=amount;

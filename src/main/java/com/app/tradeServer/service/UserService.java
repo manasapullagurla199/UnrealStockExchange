@@ -19,6 +19,11 @@ public class UserService {
         // Logic to create and save a new user using the UserRepository
         return userRepository.save(user);
     }
+
+    public User updateUser(User user) {
+        // Logic to create and save a new user using the UserRepository
+        return userRepository.save(user);
+    }
     public List<User> getAllUsers() {
         return userRepository.findAll();
         // Logic to fetch and return all users from the UserRepository

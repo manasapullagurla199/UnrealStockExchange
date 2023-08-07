@@ -19,21 +19,25 @@ public class UserOrdersService {
     private UserFundsService userFundsService;
 
     @Autowired
+    private UserStocks userStocks;
+
+    @Autowired
     private OrderProducerKafka orderProducerKafka;
 
-    public void placeBuyOrder(UserOrders userOrder) {
-        UserFunds userFunds = userFundsService.getUserFundsByUserId(userOrder.getUserId());
-        double userAvailAmount = userFunds.getAmount();
-        //buy
+    @Autowired
+    private StockPriceService stockPriceService;
 
-//        double userReqAmount = userOrder.getStockId() * userOrder.getQuantity(); // TODO: multiply by price
-        double userReqAmount=10*userOrder.getQuantity();
+    public void placeBuyOrder(UserOrders userOrder) {
+        UserFunds userFunds = userFundsService.getUserFundsByUserId(userOrder.getUser().getId());
+        double userAvailAmount = userFunds.getAmount();
+        double userReqAmount = stockPriceService.getStockPrice(userStocks.getStockSymbol())* userOrder.getQuantity();
+        //double userReqAmount=10*userOrder.getQuantity();
         if (userReqAmount <= userAvailAmount) {
             //checked if user has sufficient amount to buy stocks then sending request to stockExchange
             userAvailAmount -= userReqAmount;
             userFunds.setAmount(userAvailAmount);
             userOrdersRepository.save(userOrder);
-            StockExchangeTradeRequest stockExchangeTradeRequest=new StockExchangeTradeRequest(userOrder.getStockId(),userOrder.getQuantity());
+            StockExchangeTradeRequest stockExchangeTradeRequest=new StockExchangeTradeRequest(userOrder.getOrderId(),userOrder.getStockId(),userOrder.getStockSymbol(),userOrder.getQuantity());
             orderProducerKafka.send(stockExchangeTradeRequest);
         }
 
@@ -41,7 +45,7 @@ public class UserOrdersService {
 
     public void placeSellOrder(UserOrders userOrder) {
         //sell
-        List<UserStocks> userStocks=UserStocksService.getUserStocksByUserId(userOrder.getUserId());
+        List<UserStocks> userStocks=UserStocksService.getUserStocksByUserId(userOrder.getUser().getId());
 //        UserFunds userFunds = this.userFundsService.getUserFundsByUserId(userOrder.getUserId());
         for(UserStocks stock: userStocks) {
             if (stock.getStockId().equals(userOrder.getStockId())) {

@@ -3,7 +3,6 @@ package com.app.tradeServer.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -12,12 +11,12 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private Long userId;
     String name;
 
-    @OneToOne(mappedBy="user")
-    private UserFunds userFunds;
+    @OneToOne
+    private UserFunds funds;
 
     @OneToMany(mappedBy = "user")
     private List<UserOrders> userOrders;

@@ -23,9 +23,9 @@ public class UserFundsService {
         this.userFundsRepository = userFundsRepository;
         this.userRepository = userRepository;
     }
-    public void updateUserFunds(UserFunds userFunds){
+    public UserFunds updateUserFunds(UserFunds userFunds){
         //TODO: check if the user is already present and then update the user funds.
-        userFundsRepository.save(userFunds);
+        return userFundsRepository.save(userFunds);
     }
 
     public UserFunds getUserFundsByUserId(Long userId){
