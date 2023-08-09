@@ -1,11 +1,13 @@
 package com.app.tradeServer.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class StockExchangeTradeResponse {
-    Long stockId;
     Long orderId;
-    public StockExchangeTradeResponse(Long stockId){
-        this.stockId=stockId;
-    }
-
-
+    boolean status;
 }

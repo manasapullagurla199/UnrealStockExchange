@@ -42,7 +42,7 @@ services:
     environment:
       POSTGRES_PASSWORD: 2357
     ports:
-      - 5432:5432
+      - 5445:5432
 
   trade-server:
     build:

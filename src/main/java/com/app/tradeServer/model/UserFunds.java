@@ -3,12 +3,14 @@ package com.app.tradeServer.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class UserFunds {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,13 +19,4 @@ public class UserFunds {
     private User user;
     double amount;
     double holdAmount;
-
-    public double getAmount(){
-        return this.amount;
-    }
-
-
-    public void setAmount(double amount){
-        this.amount=amount;
-    }
 }

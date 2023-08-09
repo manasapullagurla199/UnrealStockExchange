@@ -1,8 +1,8 @@
 package com.app.tradeServer.service;
+
 import com.app.tradeServer.model.StockExchangeTradeRequest;
-import com.app.tradeServer.model.StockExchangeTradeResponse;
-import com.app.tradeServer.model.UserOrders;
 import com.app.tradeServer.serdes.SETradeRequestSerde;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -10,14 +10,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderProducerKafka {
 
-        private final SETradeRequestSerde serde = new SETradeRequestSerde();
-        private static final String TOPIC = "se-trade-requests";
+    // Serde (Serializer/Deserializer) for StockExchangeTradeRequest
+    private final SETradeRequestSerde serde = new SETradeRequestSerde();
 
-        @Autowired
-        private KafkaTemplate<String, byte[]> kafkaTemplate;
+    // Kafka topic to send messages to
+    private static final String TOPIC = "se-trade-requests";
 
-        public void send(StockExchangeTradeRequest stockExchangeTradeRequest) {
-            byte[] request = serde.serialize(TOPIC, stockExchangeTradeRequest);
-            kafkaTemplate.send(TOPIC, stockExchangeTradeRequest.getStockId().toString(),request);
-        }
+    @Autowired
+    private KafkaTemplate<String, byte[]> kafkaTemplate;
+
+    // Method to send a StockExchangeTradeRequest to the Kafka topic
+    public void send(StockExchangeTradeRequest stockExchangeTradeRequest) {
+        // Serialize the trade request into a byte array using the serde
+        byte[] request = serde.serialize(TOPIC, stockExchangeTradeRequest);
+
+        // Send the serialized request to the Kafka topic, using the stockId as the message key
+        kafkaTemplate.send(TOPIC, stockExchangeTradeRequest.getStockId().toString(), request);
+    }
 }

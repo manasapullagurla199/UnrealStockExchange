@@ -5,12 +5,7 @@ import com.app.tradeServer.repository.UserFundsRepository;
 import com.app.tradeServer.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -19,19 +14,28 @@ public class UserFundsService {
     private UserFundsRepository userFundsRepository;
 
     @Autowired
-    public UserFundsService(UserFundsRepository userFundsRepository,UserRepository userRepository) {
+    public UserFundsService(UserFundsRepository userFundsRepository, UserRepository userRepository) {
         this.userFundsRepository = userFundsRepository;
         this.userRepository = userRepository;
     }
-    public UserFunds updateUserFunds(UserFunds userFunds){
-        //TODO: check if the user is already present and then update the user funds.
+
+    // Method to update user funds
+    public UserFunds updateUserFunds(UserFunds userFunds) {
+        if (userRepository.existsById(userFunds.getUser().getId())) {
+            UserFunds existFunds = userFundsRepository.findByUserId(userFunds.getUser().getId());
+            if (existFunds != null) {
+                // Add the new amount to the existing user funds
+                existFunds.setAmount(existFunds.getAmount() + userFunds.getAmount());
+                return userFundsRepository.save(existFunds);
+            }
+        }
+        // Save the new user funds if no existing funds found
         return userFundsRepository.save(userFunds);
     }
 
-    public UserFunds getUserFundsByUserId(Long userId){
-        UserFunds userFunds =userFundsRepository.findByUserId(userId);
-        log.info("userId in UserFundsService:{}",userId);
-        log.info("userFUnds: {}",userFunds);
-        return userFunds;
-    }
+
+    //    public UserFunds getUserFundsByUserId(Long userId){
+//        UserFunds userFunds =userFundsRepository.findByUserId(userId);
+//        return userFunds;
+//    }
 }

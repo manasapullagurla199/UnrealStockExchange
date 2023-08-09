@@ -3,11 +3,11 @@ package com.app.tradeServer.service;
 import com.app.tradeServer.repository.UserFundsRepository;
 import com.app.tradeServer.repository.UserOrdersRepository;
 import com.app.tradeServer.model.*;
+import com.app.tradeServer.repository.UserStocksRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserOrdersService {
@@ -16,10 +16,7 @@ public class UserOrdersService {
     private UserOrdersRepository userOrdersRepository;
 
     @Autowired
-    private UserFundsService userFundsService;
-
-    @Autowired
-    private UserStocks userStocks;
+    private UserFundsRepository userFundsRepository;
 
     @Autowired
     private OrderProducerKafka orderProducerKafka;
@@ -27,32 +24,52 @@ public class UserOrdersService {
     @Autowired
     private StockPriceService stockPriceService;
 
+    // Method to place a buy order
     public void placeBuyOrder(UserOrders userOrder) {
-        UserFunds userFunds = userFundsService.getUserFundsByUserId(userOrder.getUser().getId());
-        double userAvailAmount = userFunds.getAmount();
-        double userReqAmount = stockPriceService.getStockPrice(userStocks.getStockSymbol())* userOrder.getQuantity();
-        //double userReqAmount=10*userOrder.getQuantity();
-        if (userReqAmount <= userAvailAmount) {
-            //checked if user has sufficient amount to buy stocks then sending request to stockExchange
-            userAvailAmount -= userReqAmount;
-            userFunds.setAmount(userAvailAmount);
+        // Retrieve user funds based on user ID
+        UserFunds userFunds = userFundsRepository.findByUserId(userOrder.getUser().getId());
+        double userAvailableAmount = userFunds.getAmount();
+
+        // Calculate required amount for the buy order
+        double userRequiredAmount = stockPriceService.getStockPrice(userOrder.getStockSymbol()) * userOrder.getQuantity();
+
+        // Check if user has sufficient funds
+        if (userRequiredAmount <= userAvailableAmount) {
+            userAvailableAmount -= userRequiredAmount;
+            userFunds.setAmount(userAvailableAmount);
+            userFunds.setHoldAmount(userRequiredAmount);
+
+            // Set buy price for the order
+            userOrder.setBuyPrice(stockPriceService.getStockPrice(userOrder.getStockSymbol()));
+
+            // Save user order and update user funds
             userOrdersRepository.save(userOrder);
-            StockExchangeTradeRequest stockExchangeTradeRequest=new StockExchangeTradeRequest(userOrder.getOrderId(),userOrder.getStockId(),userOrder.getStockSymbol(),userOrder.getQuantity());
+            userFundsRepository.save(userFunds);
+
+            // Create and send a trade request to Kafka
+            StockExchangeTradeRequest stockExchangeTradeRequest = new StockExchangeTradeRequest(
+                    userOrder.getOrderId(), userOrder.getStockId(), userOrder.getStockSymbol(),
+                    userOrder.getQuantity(), userOrder.getOrderType());
             orderProducerKafka.send(stockExchangeTradeRequest);
         }
-
     }
 
+    // Method to place a sell order
     public void placeSellOrder(UserOrders userOrder) {
-        //sell
-        List<UserStocks> userStocks=UserStocksService.getUserStocksByUserId(userOrder.getUser().getId());
-//        UserFunds userFunds = this.userFundsService.getUserFundsByUserId(userOrder.getUserId());
-        for(UserStocks stock: userStocks) {
+        List<UserStocks> userStocks = UserStocksService.getUserStocksByUserId(userOrder.getUser().getId());
+
+        // Loop through user stocks to find matching stock for the sell order
+        for (UserStocks stock : userStocks) {
             if (stock.getStockId().equals(userOrder.getStockId())) {
                 if (stock.getQuantity() >= userOrder.getQuantity()) {
-//                    double userAvailFunds=user.getAmount();
-//                    UserFunds.setAmount(-(stock.getStockId()*userOr.getQuantity())); // TODO: hold stocks
+                    stock.setQuantity(stock.getQuantity() - userOrder.getQuantity());
+                    stock.setHoldQuantity(userOrder.getQuantity());
                     userOrdersRepository.save(userOrder);
+
+                    // Create and send a trade request to Kafka
+                    orderProducerKafka.send(new StockExchangeTradeRequest(
+                            userOrder.getOrderId(), userOrder.getStockId(), userOrder.getStockSymbol(),
+                            userOrder.getQuantity(), userOrder.getOrderType()));
                 }
             }
         }
