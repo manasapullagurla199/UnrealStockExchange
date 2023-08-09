@@ -18,4 +18,5 @@ public class UserStocksService {
         return userStocksRepository.getUserStocksByUserId(userId);
         // Logic to fetch and return all user stocks for a specific user from the UserStockRepository
     }
+
 }
