@@ -1,7 +1,7 @@
 package com.app.tradeServer.service;
 
 import com.app.utilities.model.StockExchangeTradeRequest;
-import com.app.tradeServer.serdes.SETradeRequestSerde;
+import com.app.utilities.serdes.SETradeRequestSerde;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

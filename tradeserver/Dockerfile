@@ -1,9 +1,15 @@
-FROM gradle:jdk17-jammy
+FROM gradle:jdk17-jammy as build
 
-COPY . /app/tradeServer
+COPY --chown=gradle:gradle . /app/src
 
-WORKDIR /app/tradeServer
+WORKDIR /app/src
 
-RUN gradle installDist
+RUN gradle tradeserver:installDist
 
-ENTRYPOINT ./build/install/tradeServer/bin/tradeServer
+FROM eclipse-temurin:17-jre-jammy
+
+COPY --from=build  /app/src/tradeserver/build/install/tradeserver/* /app/tradeserver/lib/
+
+WORKDIR /app/tradeserver
+
+CMD ./lib/tradeserver

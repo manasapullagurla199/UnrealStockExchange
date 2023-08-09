@@ -1,15 +1,16 @@
-package com.app.tradeServer.serdes;
+package com.app.utilities.serdes;
 
 import com.app.utilities.model.StockExchangeTradeResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Deserializer;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class SETradeResponseSerde implements Serializer<StockExchangeTradeResponse>, Deserializer<StockExchangeTradeResponse> {
+public class SETradeResponseSerde implements Serde<StockExchangeTradeResponse>, Serializer<StockExchangeTradeResponse>, Deserializer<StockExchangeTradeResponse> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -41,5 +42,15 @@ public class SETradeResponseSerde implements Serializer<StockExchangeTradeRespon
     @Override
     public void close() {
         Serializer.super.close();
+    }
+
+    @Override
+    public Serializer<StockExchangeTradeResponse> serializer() {
+        return this;
+    }
+
+    @Override
+    public Deserializer<StockExchangeTradeResponse> deserializer() {
+        return this;
     }
 }

@@ -5,7 +5,7 @@ import com.app.tradeServer.repository.UserFundsRepository;
 import com.app.tradeServer.repository.UserOrdersRepository;
 import com.app.tradeServer.repository.UserRepository;
 import com.app.tradeServer.repository.UserStocksRepository;
-import com.app.tradeServer.serdes.SETradeResponseSerde;
+import com.app.utilities.serdes.SETradeResponseSerde;
 import com.app.utilities.model.StockExchangeTradeResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

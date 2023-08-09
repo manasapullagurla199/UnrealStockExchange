@@ -7,6 +7,9 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
+    volumes:
+      - ./data/zoo/data:/var/lib/zookeeper/data
+      - ./data/zoo/log:/var/lib/zookeeper/log
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -43,31 +46,14 @@ services:
       POSTGRES_PASSWORD: 2357
     ports:
       - 5445:5432
+    volumes:
+      - ./data/postgresql/data:/var/lib/postgresql/data
 
-  jobmanager:
-    image: flink:latest
+  stock-exchange:
+    build:
+      dockerfile: stockexchange/Dockerfile
     depends_on:
-      - zookeeper
       - kafka
-    ports:
-      - "8082:8081"
-    command: jobmanager
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager        
-
-  taskmanager:
-    image: flink:latest
-    depends_on:
-      - jobmanager
-    command: taskmanager
-    scale: 1
-    environment:
-      - |
-        FLINK_PROPERTIES=
-        jobmanager.rpc.address: jobmanager
-        taskmanager.numberOfTaskSlots: 2   
 
   trade-server:
     build:
@@ -77,4 +63,4 @@ services:
     depends_on:
       - postgresdb
       - kafka
-      - taskmanager
+      - stock-exchange

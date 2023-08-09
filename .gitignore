@@ -6,3 +6,6 @@ build
 
 .idea/
 bin
+data
+zoo
+postgresql
