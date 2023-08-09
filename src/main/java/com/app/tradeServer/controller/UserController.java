@@ -1,18 +1,20 @@
 package com.app.tradeServer.controller;
 
 import com.app.tradeServer.model.*;
+import com.app.tradeServer.repository.UserFundsRepository;
 import com.app.tradeServer.repository.UserRepository;
-import com.app.tradeServer.service.StockSymbols;
-import com.app.tradeServer.service.UserFundsService;
-import com.app.tradeServer.service.UserOrdersService;
-import com.app.tradeServer.service.UserService;
+import com.app.tradeServer.repository.UserStocksRepository;
+import com.app.tradeServer.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -22,10 +24,14 @@ public class UserController {
 
     @Autowired
     private UserFundsService userFundsService;
-
+    @Autowired
+    private UserStocksService userStocksService;
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private UserStocksRepository userStocksRepository;
+    @Autowired
+    private UserFundsRepository userFundsRepository;
     @Autowired
     private StockSymbols stockSymbols;
 
@@ -59,6 +65,24 @@ public class UserController {
         return ResponseEntity.ok("Buy order placed successfully");
     }
 
+    @GetMapping("/stocks/{id}")
+    public List<UserStocksRequest> getStocks(@PathVariable Long id){
+        List<UserStocks> existingStocks=userStocksRepository.getUserStocksByUserId(id);
+        List<UserStocksRequest> allStocksOfUser=new ArrayList<>();
+        for(UserStocks stock :existingStocks){
+            UserStocksRequest userStocksRequest= UserStocksRequest.builder()
+                    .symbol(stock.getStockSymbol())
+                    .quantity(stock.getQuantity())
+                    .buyPrice(stock.getBuyPrice())
+                    .build();
+            allStocksOfUser.add(userStocksRequest);
+        }
+        return allStocksOfUser;
+    }
+    @GetMapping("/funds/{id}")
+    public double getFunds(@PathVariable Long id){
+        return userFundsRepository.findByUserId(id).getAmount();
+    }
     // Endpoint to place a sell order
     @PostMapping("/sell")
     public ResponseEntity<String> sellOrder(@RequestBody OrderRequest orderRequest) {

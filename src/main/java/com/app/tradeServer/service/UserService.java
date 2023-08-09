@@ -28,10 +28,6 @@ public class UserService {
         return userRepository.findAll();
         // Logic to fetch and return all users from the UserRepository
     }
-    public Optional<User> getUserById(Long id) {
-        // Logic to fetch and return a user by ID from the UserRepository
-        return userRepository.findById(id);
-    }
     public void deleteUser(Long id) {
         // Logic to delete a user by ID from the UserRepository
         userRepository.deleteById(id);
